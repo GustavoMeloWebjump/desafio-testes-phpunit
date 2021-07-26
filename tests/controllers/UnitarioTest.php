@@ -1,74 +1,45 @@
 <?php
 
+require 'vendor/autoload.php';
+
 use PHPUnit\Framework\TestCase;
-use Webjump262\DesafioPhpunit\Controller\LoginController;
+use Webjump262\DesafioPhpunit\Controller\CompraController;
 use Webjump262\DesafioPhpunit\Model\Comida;
 use Webjump262\DesafioPhpunit\Model\Usuario;
 
 class UnitarioTest extends TestCase {
 
-    public function UsuarioProvedor () {
-        $user = new Usuario('gustavo', 'gustavo@mail.com', 'gustavo', 100);
-
-        return $user;
-    }
-
-    public function LoginProvedor () {
-        $loginProvedor = new LoginController();
-
-        return $loginProvedor;
-    }
-
-    public function CompraProvider ()  {
+    public function provedor () {
         $buy = new CompraController();
-
-        return $buy;
-    }
-
-    public function ComidaProvider () {
         $comida = new Comida(10, 'Sorvete');
+
+        return [
+            [
+                $buy,
+                $comida
+            ]
+        ];
     }
 
     /**
-     * @dataProvider UsuarioProvedor
-     * @dataProvider LoginProvedor
+     * @dataProvider provedor
      */
-    public function testUsuarioLogadoComSucesso (Usuario $usuario, LoginController $loginProvedor) {
+    public function testRealizeUmaCompraSemCredito (CompraController $compraController, Comida $comida) {
+
+        $usuario = new Usuario('Gustavo', 'gustavo@mail.com', 'gustavo', 5);
+
         $this->expectException(DomainException::class);
-        $helperPassword = 'gustavo';
-        $loginProvedor->auth($usuario, $helperPassword);
-
-        self::assertEquals($helperPassword, $usuario->getPassword());
+        $compraController->comprar($usuario, $comida);
     }
 
     /**
-     * @dataProvider LoginProvedor
-     * @depends testUsuarioLogadoComSucesso
+     * @dataProvider provedor
      */
-    public function testMostreUsuariosAutenticados (LoginController $loginProvedor) {
-        self::assertCount(1, $loginProvedor->getUsuariosLogados());
-    }
+    public function testRealizeUmaCompraComCredito(CompraController $compraController, Comida $comida) {
+        $usuario = new Usuario('Gustavo', 'gustavo@mail.com', 'gustavo', 15);
 
-    /**
-     * @dataProvider LoginProvedor
-     * @dataProvider UsuarioProvedor
-     * @dataProvider CompraProvedor
-     * @dataProvider ComidaProvedor
-     */
-    public function testRealizeUmaCompra (Usuario $usuario, LoginController $login, CompraController $compraController, Comida $comida) {
-        
-        $this->expectException(DomainException::class);
+        $compraController->comprar($usuario, $comida);
 
-        $logged = false;
-        
-        foreach ($login->getUsuariosLogados() as $userLogado) {
-            $userLogado === $usuario ? $logged = true : false;
-        }
-
-        if($logged) {
-            $compraController->comprar($usuario, $comida);
-        }
-
-        self::assertEquals(90, $usuario->getCredit());
+        self::assertEquals(5, $usuario->getCredit());
     }
 }
