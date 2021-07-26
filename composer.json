@@ -1,0 +1,15 @@
+{
+    "name": "webjump262/desafio-phpunit",
+    "autoload": {
+        "psr-4": {
+            "Webjump262\\DesafioPhpunit\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "GustavoMeloWebjump",
+            "email": "gustavo.melo@webjump.com.br"
+        }
+    ],
+    "require": {}
+}
